@@ -1,0 +1,58 @@
+---
+- name: Install NRPE on Web Server for Advanced Monitoring
+  hosts: webservers
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install NRPE and plugins
+      apt:
+        name:
+          - nagios-nrpe-server
+          - nagios-plugins
+          - nagios-plugins-basic
+          - nagios-plugins-standard
+        state: present
+
+    - name: Get Control Node IP
+      set_fact:
+        control_node_ip: "{{ lookup('file', '/home/ubuntu/web_server_ip.txt') | regex_replace('65.0.199.117', '35.154.241.241') }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Configure NRPE to allow Control Node
+      lineinfile:
+        path: /etc/nagios/nrpe.cfg
+        regexp: '^allowed_hosts='
+        line: "allowed_hosts=127.0.0.1,::1,35.154.241.241"
+        backup: yes
+
+    - name: Enable command arguments in NRPE
+      lineinfile:
+        path: /etc/nagios/nrpe.cfg
+        regexp: '^dont_blame_nrpe='
+        line: "dont_blame_nrpe=1"
+
+    - name: Add custom NRPE commands
+      blockinfile:
+        path: /etc/nagios/nrpe.cfg
+        block: |
+          # Custom commands for web server monitoring
+          command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p /
+          command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+          command[check_memory]=/usr/lib/nagios/plugins/check_memory -w 80 -c 90
+          command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -C nginx
+
+    - name: Restart NRPE service
+      systemd:
+        name: nagios-nrpe-server
+        state: restarted
+        enabled: yes
+
+    - name: Display NRPE status
+      debug:
+        msg: "NRPE installed and configured on web server"

@@ -1,0 +1,81 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║        TOMORROW MORNING - START YOUR PROJECT                ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 SIMPLE 3-STEP PROCESS:
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 1: Start AWS Instances                                  │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Go to AWS EC2 Console
+  □ Select both instances (Control-Node and Web-Server-1)
+  □ Click "Instance State" → "Start"
+  □ Wait 2-3 minutes until status shows "Running"
+
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 2: Run Restart Script                                   │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Open PowerShell in F:\devpro
+  □ Run: .\START_PROJECT.ps1
+  □ Wait for script to complete (2-3 minutes)
+
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 3: Access Your Applications                             │
+└──────────────────────────────────────────────────────────────┘
+
+  □ Hospital App: http://[IP shown in script output]
+  □ Nagios Dashboard: http://[IP shown in script output]/nagios
+     Username: nagiosadmin
+     Password: admin123
+
+
+╔══════════════════════════════════════════════════════════════╗
+║                    THAT'S IT! ✅                             ║
+╚══════════════════════════════════════════════════════════════╝
+
+
+📌 IMPORTANT NOTES:
+
+  • IP addresses change every time you restart
+  • The script automatically updates everything
+  • Wait 10 minutes for monitoring to fully stabilize
+  • Keep Dev.pem file safe (it's your SSH key)
+
+
+🆘 IF SOMETHING GOES WRONG:
+
+  1. Wait 5 more minutes and try accessing again
+  2. Run the script again: .\START_PROJECT.ps1
+  3. Check DAILY_RESTART_GUIDE.md for manual steps
+
+
+📁 KEY FILES YOU NEED:
+
+  ✓ START_PROJECT.ps1      - Main restart script
+  ✓ Dev.pem                - SSH key (keep safe!)
+  ✓ terraform.tfvars       - AWS credentials
+  ✓ DAILY_RESTART_GUIDE.md - Detailed instructions
+
+
+🎯 WHAT THE SCRIPT DOES FOR YOU:
+
+  ✓ Gets new IP addresses from AWS
+  ✓ Updates Ansible configuration
+  ✓ Updates Nagios monitoring
+  ✓ Configures NRPE agent
+  ✓ Restarts all services
+  ✓ Verifies everything works
+  ✓ Shows you the access URLs
+
+
+═══════════════════════════════════════════════════════════════
+
+           SAVE THIS FILE FOR TOMORROW! 💾
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,77 @@
+---
+- name: Configure Nagios to Monitor Web Server
+  hosts: localhost
+  become: yes
+  vars:
+    web_server_ip: "{{ lookup('file', '/home/ubuntu/web_server_ip.txt') }}"
+  
+  tasks:
+    - name: Create web server host configuration
+      copy:
+        dest: /usr/local/nagios/etc/objects/webserver.cfg
+        content: |
+          # Web Server Host Definition
+          define host {
+              use                     linux-server
+              host_name               web-server-1
+              alias                   Hospital App Web Server
+              address                 {{ web_server_ip }}
+              max_check_attempts      5
+              check_period            24x7
+              notification_interval   30
+              notification_period     24x7
+          }
+
+          # HTTP Service Check
+          define service {
+              use                     generic-service
+              host_name               web-server-1
+              service_description     HTTP
+              check_command           check_http
+              notifications_enabled   1
+          }
+
+          # PING Service Check
+          define service {
+              use                     generic-service
+              host_name               web-server-1
+              service_description     PING
+              check_command           check_ping!100.0,20%!500.0,60%
+              notifications_enabled   1
+          }
+
+          # SSH Service Check
+          define service {
+              use                     generic-service
+              host_name               web-server-1
+              service_description     SSH
+              check_command           check_ssh
+              notifications_enabled   1
+          }
+
+    - name: Add webserver.cfg to nagios.cfg
+      lineinfile:
+        path: /usr/local/nagios/etc/nagios.cfg
+        line: "cfg_file=/usr/local/nagios/etc/objects/webserver.cfg"
+        state: present
+
+    - name: Verify Nagios configuration
+      command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+      register: nagios_verify
+
+    - name: Display verification result
+      debug:
+        var: nagios_verify.stdout_lines
+
+    - name: Restart Nagios
+      systemd:
+        name: nagios
+        state: restarted
+
+    - name: Display monitoring info
+      debug:
+        msg:
+          - "Web Server monitoring configured!"
+          - "Monitoring: {{ web_server_ip }}"
+          - "Services: HTTP, PING, SSH"
+          - "Check Nagios dashboard for status"

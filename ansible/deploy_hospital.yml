@@ -1,0 +1,58 @@
+---
+- name: Deploy Hospital Management System
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Remove default Nginx site
+      file:
+        path: /var/www/html/index.nginx-debian.html
+        state: absent
+
+    - name: Create hospital app directory
+      file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
+
+    - name: Copy index.html
+      copy:
+        src: ../hospital-app/index.html
+        dest: /var/www/html/index.html
+        mode: '0644'
+
+    - name: Copy style.css
+      copy:
+        src: ../hospital-app/style.css
+        dest: /var/www/html/style.css
+        mode: '0644'
+
+    - name: Copy script.js
+      copy:
+        src: ../hospital-app/script.js
+        dest: /var/www/html/script.js
+        mode: '0644'
+
+    - name: Ensure Nginx is running
+      systemd:
+        name: nginx
+        state: restarted
+
+    - name: Display success message
+      debug:
+        msg: "Hospital Management System deployed successfully! Access at http://{{ ansible_host }}"

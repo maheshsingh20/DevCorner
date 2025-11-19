@@ -1,0 +1,155 @@
+---
+- name: Install and Configure Nagios on Control Node
+  hosts: localhost
+  become: yes
+  vars:
+    nagios_version: "4.4.6"
+    nagios_plugins_version: "2.3.3"
+    nagios_admin_user: "nagiosadmin"
+    nagios_admin_password: "admin123"
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - wget
+          - unzip
+          - build-essential
+          - apache2
+          - php
+          - openssl
+          - perl
+          - make
+          - php-gd
+          - libgd-dev
+          - libapache2-mod-php
+          - libperl-dev
+          - libssl-dev
+          - bc
+          - gawk
+          - dc
+          - snmp
+          - libnet-snmp-perl
+          - gettext
+          - autoconf
+          - bind9-dnsutils
+        state: present
+
+    - name: Create nagios user and group
+      user:
+        name: nagios
+        system: yes
+        shell: /bin/bash
+
+    - name: Add nagios to www-data group
+      user:
+        name: nagios
+        groups: www-data
+        append: yes
+
+    - name: Add www-data to nagios group
+      user:
+        name: www-data
+        groups: nagios
+        append: yes
+
+    - name: Download Nagios Core
+      get_url:
+        url: "https://github.com/NagiosEnterprises/nagioscore/archive/nagios-{{ nagios_version }}.tar.gz"
+        dest: "/tmp/nagios-{{ nagios_version }}.tar.gz"
+
+    - name: Extract Nagios Core
+      unarchive:
+        src: "/tmp/nagios-{{ nagios_version }}.tar.gz"
+        dest: /tmp
+        remote_src: yes
+
+    - name: Configure Nagios
+      shell: |
+        cd /tmp/nagioscore-nagios-{{ nagios_version }}
+        ./configure --with-httpd-conf=/etc/apache2/sites-enabled
+      args:
+        creates: /tmp/nagioscore-nagios-{{ nagios_version }}/Makefile
+
+    - name: Compile Nagios
+      shell: |
+        cd /tmp/nagioscore-nagios-{{ nagios_version }}
+        make all
+      args:
+        creates: /tmp/nagioscore-nagios-{{ nagios_version }}/base/nagios
+
+    - name: Install Nagios
+      shell: |
+        cd /tmp/nagioscore-nagios-{{ nagios_version }}
+        make install
+        make install-init
+        make install-commandmode
+        make install-config
+        make install-webconf
+      args:
+        creates: /usr/local/nagios/bin/nagios
+
+    - name: Create nagiosadmin user for web interface
+      shell: htpasswd -cb /usr/local/nagios/etc/htpasswd.users {{ nagios_admin_user }} {{ nagios_admin_password }}
+      args:
+        creates: /usr/local/nagios/etc/htpasswd.users
+
+    - name: Download Nagios Plugins
+      get_url:
+        url: "https://github.com/nagios-plugins/nagios-plugins/archive/release-{{ nagios_plugins_version }}.tar.gz"
+        dest: "/tmp/nagios-plugins-{{ nagios_plugins_version }}.tar.gz"
+
+    - name: Extract Nagios Plugins
+      unarchive:
+        src: "/tmp/nagios-plugins-{{ nagios_plugins_version }}.tar.gz"
+        dest: /tmp
+        remote_src: yes
+
+    - name: Configure Nagios Plugins
+      shell: |
+        cd /tmp/nagios-plugins-release-{{ nagios_plugins_version }}
+        ./tools/setup
+        ./configure
+      args:
+        creates: /tmp/nagios-plugins-release-{{ nagios_plugins_version }}/Makefile
+
+    - name: Compile and Install Nagios Plugins
+      shell: |
+        cd /tmp/nagios-plugins-release-{{ nagios_plugins_version }}
+        make
+        make install
+      args:
+        creates: /usr/local/nagios/libexec/check_http
+
+    - name: Enable Apache modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - rewrite
+        - cgi
+
+    - name: Start and enable Apache
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Start and enable Nagios
+      systemd:
+        name: nagios
+        state: started
+        enabled: yes
+
+    - name: Display Nagios access info
+      debug:
+        msg:
+          - "Nagios installed successfully!"
+          - "Access Nagios at: http://{{ ansible_default_ipv4.address }}/nagios"
+          - "Username: {{ nagios_admin_user }}"
+          - "Password: {{ nagios_admin_password }}"

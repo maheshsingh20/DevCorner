@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hospital Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <h1 class="logo">🏥 HealthCare</h1>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#appointments">Appointments</a></li>
+          <li><a href="#doctors">Doctors</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <h2>Welcome to Healthcare Hub</h2>
+        <p>Your trusted healthcare partner for quality medical services</p>
+        <button class="btn-primary" onclick="scrollToSection('appointments')">
+          Book Appointment
+        </button>
+      </div>
+    </section>
+
+    <section id="appointments" class="appointments">
+      <div class="container">
+        <h2>Book an Appointment</h2>
+        <form class="appointment-form">
+          <input type="text" placeholder="Full Name" required />
+          <input type="email" placeholder="Email" required />
+          <input type="tel" placeholder="Phone Number" required />
+          <select required>
+            <option>Select Department</option>
+            <option>Cardiology</option>
+            <option>Neurology</option>
+            <option>Orthopedics</option>
+            <option>General Medicine</option>
+          </select>
+          <input type="date" required />
+          <textarea placeholder="Describe your symptoms" rows="4"></textarea>
+          <button type="submit" class="btn-submit">Book Appointment</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="doctors" class="doctors">
+      <div class="container">
+        <h2>Our Doctors</h2>
+        <div class="doctors-grid">
+          <div class="doctor-card">
+            <h3>Dr. Rajesh Kumar</h3>
+            <p class="specialty">Cardiologist</p>
+            <p class="experience">20+ years experience</p>
+            <p>Specialized in heart and cardiovascular diseases</p>
+          </div>
+          <div class="doctor-card">
+            <h3>Dr. Priya Sharma</h3>
+            <p class="specialty">Neurologist</p>
+            <p class="experience">15+ years experience</p>
+            <p>Specialized in nervous system disorders</p>
+          </div>
+          <div class="doctor-card">
+            <h3>Dr. Amit Patel</h3>
+            <p class="specialty">Orthopedic Surgeon</p>
+            <p class="experience">18+ years experience</p>
+            <p>Specialized in bones and joints</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="services">
+      <div class="container">
+        <h2>Our Services</h2>
+        <div class="services-grid">
+          <div class="service-card">
+            <h3>Emergency Care</h3>
+            <p>24/7 emergency services with experienced staff</p>
+          </div>
+          <div class="service-card">
+            <h3>Diagnostic Services</h3>
+            <p>Advanced diagnostic equipment and tests</p>
+          </div>
+          <div class="service-card">
+            <h3>Surgery</h3>
+            <p>Advanced surgical facilities and experienced surgeons</p>
+          </div>
+          <div class="service-card">
+            <h3>Pediatrics</h3>
+            <p>Specialized care for children and newborns</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="container">
+        <h2>Contact Us</h2>
+        <div class="contact-info">
+          <p>
+            <strong>Address:</strong> 123 Health Street, Medical City, MC 12345
+          </p>
+          <p><strong>Phone:</strong> +91 9876543210</p>
+          <p><strong>Email:</strong> info@healthcarehub.com</p>
+          <p><strong>Hours:</strong> Mon-Fri 9AM-6PM, Sat 10AM-4PM</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2024 Healthcare Hub. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

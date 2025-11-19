@@ -1,0 +1,24 @@
+---
+- name: Fix NRPE Configuration
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Update NRPE allowed hosts
+      lineinfile:
+        path: /etc/nagios/nrpe.cfg
+        regexp: '^allowed_hosts='
+        line: "allowed_hosts=127.0.0.1,::1,172.31.43.41"
+        backup: yes
+
+    - name: Restart NRPE
+      systemd:
+        name: nagios-nrpe-server
+        state: restarted
+
+    - name: Test NRPE
+      command: /usr/lib/nagios/plugins/check_nrpe -H 127.0.0.1
+      register: nrpe_test
+
+    - name: Display result
+      debug:
+        msg: "NRPE is working: {{ nrpe_test.stdout }}"
